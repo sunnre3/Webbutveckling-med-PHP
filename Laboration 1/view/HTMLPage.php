@@ -12,7 +12,7 @@ class HTMLPage {
 		
 			<head>
 				<title>$title</title>
-				<meta http-equiv=\"Content-Type\" content=\"text/html; charset=utf-8;\" />
+				<meta http-equiv=\"Content-Type\" content=\"text/html; charset=utf-8\" />
 			</head>
 			
 			<body>
@@ -43,7 +43,7 @@ class HTMLPage {
 				' . (isset($feedback) ? '<p>' . $feedback . '</p>' : '') . '
 				
 				<label for="username">Namn: </label>
-				<input id="username" name="username" type="text">
+				<input id="username" name="username" type="text" value="' . (isset($_POST["username"]) ? $_POST["username"] : '') . '">
 				
 				<label for="password">Lösenord: </label>
 				<input id="password" name="password" type="password">

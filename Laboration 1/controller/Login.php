@@ -26,6 +26,9 @@ class Login {
 	}
 	
 	private function logout() {
+		if(isset($_SESSION["username"]))
+			$this->feedback = "Du har nu loggat ut";
+
 		$_SESSION = array();
 		session_destroy();
 		$this->is_logged_in = false;

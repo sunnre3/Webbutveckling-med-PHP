@@ -1,7 +1,7 @@
 <?php
 
-	require_once("controller\Login.php");
-	require_once("view\HTMLPage.php");
+	require_once("controller/Login.php");
+	require_once("view/HTMLPage.php");
 	
 	$login		= new \controller\Login();
 	$HTMLPage	= new \view\HTMLPage();
