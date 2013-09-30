@@ -1,19 +1,21 @@
 <?php
 
 	require_once("controller/Login.php");
+	require_once("view/Login.php");
 	require_once("view/HTMLPage.php");
 	
 	$login		= new \controller\Login();
+	$loginView	= new \view\Login();
 	$HTMLPage	= new \view\HTMLPage();
 	
 	if($login->isLoggedIn()) {
-		$htmlContent = $HTMLPage->getLoggedIn($login->feedback);
+		$htmlContent = $loginView->getLoggedIn($login->message);
+		$title = "Laboration 1: inloggad";
 	}
 	
 	else {
-		$htmlContent = $HTMLPage->getNotLoggedIn($login->feedback);
+		$htmlContent = $loginView->getNotLoggedIn($login->message);
+		$title = "Laboration 1: du är inte inloggad";
 	}
 	
-	echo $htmlContent;
-	
-?>
+	echo $HTMLPage->getPage($title, $htmlContent);
