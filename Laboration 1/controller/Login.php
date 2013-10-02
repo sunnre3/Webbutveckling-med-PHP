@@ -2,6 +2,8 @@
 
 namespace controller;
 
+require_once("view/Login.php");
+
 class Login {
 	/**
 	 * Boolean; is the current user logged in or not
@@ -13,13 +15,30 @@ class Login {
 	 * Hard coded username
 	 * @var string
 	 */
-	private $username = "Admin";
+	private $validUsername = "Admin";
 
 	/**
 	 * Hard coded password
 	 * @var string
 	 */
-	private $password = "Password";
+	private $validPassword = "Password";
+
+	/**
+	 * @var \view\Login
+	 */
+	private $loginView;
+
+	/**
+	 * Username fetches from view
+	 * @var string
+	 */
+	private $username = "";
+
+	/**
+	 * Password fetches from view
+	 * @var string
+	 */
+	private $password = "";
 	
 	/**
 	 * Used to convery input errors to view
@@ -31,70 +50,115 @@ class Login {
 	 * Login/logout depending on state
 	 */
 	public function __construct() {
+		//Start a new session
 		session_start();
+
+		//Initiate a loginView
+		$this->loginView = new \view\Login();
+
+		//Get username
+		$this->username = $this->loginView->getUsername();
+
+		//Get password
+		$this->password = md5($this->loginView->getPassword());
 		
-		if(isset($_GET["logout"])) {
+		//First check if user is logging out
+		if($this->loginView->isUserLoggingOut()) {
 			$this->logout();
 		}
 		
-		else if(isset($_POST["submit"])) {
+		//Then if a user is atempting to log in with form data
+		else if($this->loginView->isFormSubmit()) {
 			$this->loginWithPostData();
 		}
 		
-		else if(!empty($_SESSION["username"]) && ($_SESSION["logged_in"])) {
+		//Thirdly if user is logging in with session data
+		else if($this->loginView->userHasSessionData()) {
 			$this->loginWithSessionData();
 		}
 	}
+
+	/**
+	 * Validates a given password to the hard coded one
+	 * @param  string $password
+	 * @return boolean
+	 */
+	private function validatePassword($password) {
+		return $password == md5($this->validPassword);
+	}
+
+	/**
+	 * Validates a given username to the hard coded one
+	 * @param  string $username
+	 * @return boolean
+	 */
+	private function validateUsername($username) {
+		return ($username == $this->validUsername);
+	}
+
+	/**
+	 * Validates both username/password
+	 * @return boolean
+	 */
+	private function validateLogin() {
+		if($this->validateUsername($this->username) && $this->validatePassword($this->password))
+			return true;
+
+		return false;
+	}
 	
 	/**
-	 * Shows a message, resets the session and logouts the user
+	 * Shows a message, resets the session, removes any saved data in cookies and logs out the user
+	 * @return void
 	 */
 	private function logout() {
-		if(isset($_SESSION["username"]))
+		if($this->loginView->isLoggedIn())
 			$this->message = "Du har nu loggat ut";
 
-		$_SESSION = array();
-		session_destroy();
+		$this->loginView->deleteSessionData();
+		
 		$this->is_logged_in = false;
 	}
 	
 	/**
 	 * Login function used with POST
+	 * @return void
 	 */
 	private function loginWithPostData() {
-		if(empty($_POST["username"])) {
+
+		if(empty($this->username)) {
 			$this->message = "Användarnamn saknas";
 			return;
 		}
 		
-		else if(empty($_POST["password"])) {
+		else if(empty($this->password)) {
 			$this->message = "Lösenord saknas";
 			return;
 		}
 		
-		if($_POST["username"] != $this->username || $_POST["password"] != $this->password) {
+		else if(!$this->validateLogin()) {
 			$this->message = "Felaktigt användarnamn och/eller lösenord";
 			return;
 		}
 		
-		$_SESSION["username"]	= $_POST["username"];
-		$_SESSION["password"]	= $_POST["password"];
-		$_SESSION["logged_in"]	= true;
-		
+		$this->loginView->setSessionData();
 		$this->is_logged_in = true;
-		
+
 		$this->message = "Inloggning lyckades";
 	}
 	
 	/**
 	 * Login function used with session
+	 * @return void
 	 */
 	private function loginWithSessionData() {
-		$this->is_logged_in = true;
+		if($this->loginView->validateSessionData())
+			$this->is_logged_in = true;
 	}
-	
+
 	/**
 	 * Public function to check if the user is logged in
+	 * @return void
 	 */
 	public function isLoggedIn() {
 		return $this->is_logged_in;

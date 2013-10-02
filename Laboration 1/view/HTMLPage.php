@@ -3,6 +3,7 @@
 namespace view;
 
 setlocale(LC_ALL, 'swedish');
+date_default_timezone_set("Europe/Stockholm");
 
 class HTMLPage {
 	/**
