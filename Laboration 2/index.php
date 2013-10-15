@@ -10,12 +10,12 @@
 	
 	if($login->isLoggedIn()) {
 		$htmlContent = $loginView->getLoggedIn($login->message);
-		$title = "Laboration 1: inloggad";
+		$title = "Laboration 2: inloggad";
 	}
 	
 	else {
 		$htmlContent = $loginView->getNotLoggedIn($login->message);
-		$title = "Laboration 1: du är inte inloggad";
+		$title = "Laboration 2: du är inte inloggad";
 	}
 	
 	echo $HTMLPage->getPage($title, $htmlContent);
