@@ -3,6 +3,7 @@
 namespace view;
 
 require_once("model/Login.php");
+require_once("model/PersistentLogin.php");
 
 class Login {
 	/**
@@ -14,11 +15,6 @@ class Login {
 	 * @var string
 	 */
 	private static $passwordDataKey = "password";
-
-	/**
-	 * @var string
-	 */
-	private static $cookieEndTimeFile = "cookie_endtime.txt";
 
 	/**
 	 * @var string
@@ -44,6 +40,24 @@ class Login {
 	 * @var string
 	 */
 	private static $formRememberMe = "remember_me";
+
+	/**
+	 * @var \model\Login
+	 */
+	private $loginModel;
+
+	/**
+	 * @var \model\PersistentLogin
+	 */
+	private $persistentLogin;
+
+	/**
+	 * Initiates objects
+	 */
+	public function __construct() {
+		$this->loginModel = new \model\Login();
+		$this->persistentLogin = new \model\PersistentLogin();
+	}
 
 	/**
 	 * Returns a username from either POST data or cookie
@@ -98,7 +112,7 @@ class Login {
 	}
 
 	public function validateCookieData() {
-		return (time() < file_get_contents(self::$cookieEndTimeFile));
+		return $this->persistentLogin->validateEndTime();
 	}
 
 	/**
@@ -108,8 +122,8 @@ class Login {
 	public function saveCookieData() {
 		$expires = time() + 10;
 
-		//Write expected end time for cookie to expire to file
-		file_put_contents(self::$cookieEndTimeFile, $expires);
+		//Save expected end time for cookie to expire
+		$this->persistentLogin->saveEndTime($expires);
 
 		//Add cookies
 		setcookie(self::$usernameCookie, $this->getUsername(), $expires);
@@ -142,8 +156,7 @@ class Login {
 	 * @return string
 	 */
 	public function getLoggedIn($message) {
-		$loginModel = new \model\Login();
-		$username = $loginModel->getLoggedInUser();
+		$username = $this->loginModel->getLoggedInUser();
 
 		return '
 			<h2>' . $username . ' är inloggad</h2>
